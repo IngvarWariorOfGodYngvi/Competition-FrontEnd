@@ -6,40 +6,45 @@
     <q-virtual-scroll :items="playerList" dense type="table" style="height: 40vh;width:100%">
       <template v-slot:before>
         <thead class="thead-sticky text-left">
-          <tr>
-            <th>lp</th>
-            <th>Nazwisko</th>
-            <th>Imię</th>
-            <th>Licencja</th>
-            <th>Rocznik</th>
-            <th>Kategoria Wiekowa</th>
-            <th>Numer startowy</th>
-            <th>Klub</th>
+          <tr >
+            <th style="width: 5%">lp</th>
+            <th style="width: 20%">Nazwisko</th>
+            <th style="width: 15%">Imię</th>
+            <th style="width: 15%">Licencja</th>
+            <th style="width: 10%">Rocznik</th>
+            <th style="width: 10%">Kategoria Wiekowa</th>
+            <th style="width: 5%">Numer startowy</th>
+            <th style="width: 20%">Klub</th>
           </tr>
         </thead>
           </template>
           <template v-slot="{ item, index }">
             <tr @dblclick="open=true,playerItem = item,uuid=item.uuid, firstName= item.firstName, secondName=item.secondName,licenseNumber=item.licenseNumber, vintage = item.vintage, playerClubName=item.club.name, startNumber= item.startNumber">
-              <td>{{index+1}}</td>
-              <td>{{item.secondName}}</td>
-              <td>{{item.firstName}}</td>
-              <td>{{item.licenseNumber}}</td>
-              <td>{{item.vintage}}</td>
-              <td>tutaj trzeba dorobić kategorię wiekową</td>
-              <td>{{item.startNumber}}</td>
-              <td>{{item.club.name}} {{item.club.city}}</td>
+              <td class="col-1">{{index+1}}</td>
+              <td class="col-3">{{item.secondName}}</td>
+              <td class="col-2">{{item.firstName}}</td>
+              <td class="col-1">{{item.licenseNumber}}</td>
+              <td class="col-1">{{item.vintage}}</td>
+              <td class="col-1">tutaj trzeba dorobić kategorię wiekową</td>
+              <td class="col-1">{{item.startNumber}}</td>
+              <td class="col-2">{{item.club.name}} {{item.club.city}}</td>
             </tr>
           </template>
     </q-virtual-scroll>
     </div>
     </div>
   </q-item>
+  <div class="row">
     <q-item>
       <q-btn label="wszyscy.pdf" @click="getAllPlayersPDF()"></q-btn>
     </q-item>
-    <q-item>
+    <!-- <q-item>
       <q-btn label="generuj csv" @click="generateCSV()"></q-btn>
+    </q-item> -->
+    <q-item>
+      <q-btn label="dodaj zawodnika" @click="newPlayer=true" ></q-btn>
     </q-item>
+    </div>
       <q-dialog @keypress.enter="open=false" style="width:80vw">
       <q-card style="width:60vw;height:60vh">
           <q-card-section class="row items-center q-pb-none">
@@ -101,6 +106,27 @@
         </q-card-actions>
       </q-card>
 </q-dialog>
+<q-dialog v-model="newPlayer" @keypress.esc="newPlayer=false">
+      <q-card class="full-width">
+        <q-card-section class="col full-width">
+          <div class="row">
+          <div class="col">
+            <div><q-input class="full-width" v-model="secondName" dense filled color="primary" stack-label label="Nazwisko"></q-input></div>
+            <div><q-input class="full-width" v-model="firstName" dense filled color="primary" stack-label label="Imię"></q-input></div>
+            <div><q-input class="full-width" v-model="startNumber" dense filled color="primary" stack-label label="Numer Startowy"></q-input></div>
+            <div><q-input class="full-width" v-model="licenseNumber" dense filled color="primary" stack-label label="Numer Licencji"></q-input></div>
+            <div><q-input class="full-width" v-model="vintage" dense filled color="primary" stack-label label="Rocznik"></q-input></div>
+            <div><q-select class="full-width" v-model="playerClubName" :options="allClubsNames" use-input dense filled color="primary" stack-label label="Klub"></q-select></div>
+          </div>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Anuluj" color="primary" v-close-popup @click="playerItem=null"/>
+          <q-btn flat label="Zmień" color="primary" v-close-popup  @click="createPlayer(playerClubName)" />
+        </q-card-actions>
+      </q-card>
+</q-dialog>
 </template>
 <style src="../style/style.scss" lang="scss">
 
@@ -129,6 +155,7 @@ export default defineComponent({
       allClubsNames: [],
       playerList: [],
       open: false,
+      newPlayer: false,
       playerItem: null,
       local: App.host
     };
@@ -183,6 +210,24 @@ export default defineComponent({
       }
       fetch("http://" + this.local + "/player/?club=" + club, {
         method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(() => {
+        this.getAllPlayers()
+      });
+    },
+    createPlayer(club) {
+      const data = {
+        firstName: this.firstName,
+        secondName: this.secondName,
+        licenseNumber: this.licenseNumber,
+        vintage: this.vintage,
+        startNumber: this.startNumber,
+      }
+      fetch("http://" + this.local + "/player/?club=" + club, {
+        method: "POST",
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json",

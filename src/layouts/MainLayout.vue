@@ -16,10 +16,14 @@
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
-
+<!--
     <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
+      bordered
+    > -->
+    <q-drawer
+      v-model="leftDrawerOpen"
       bordered
     >
       <q-list>
@@ -64,7 +68,7 @@ export default defineComponent({
   },
 
   setup () {
-    const leftDrawerOpen = ref(false)
+    const leftDrawerOpen = false
 
     return {
       essentialLinks: linksList,

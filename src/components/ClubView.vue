@@ -8,6 +8,7 @@
         <thead class="thead-sticky text-left">
           <tr>
             <th>lp</th>
+            <th>ID</th>
             <th>Nazwa Klubu</th>
             <th>Miasto</th>
           </tr>
@@ -18,11 +19,14 @@
           <td>{{ index+1 }}</td>
           <td>{{ item.uuid }}</td>
           <td>{{ item.name }}</td>
-          <td>{{item.city}}</td>
+          <td>{{ item.city }}</td>
         </tr>
       </template>
     </q-virtual-scroll>
     </div>
+    <q-item>
+      <q-btn @click="newCLub=true">dodaj nowy klub</q-btn>
+    </q-item>
     </div>
   </q-item>
 <q-dialog v-model="open" @keypress.esc="open=false">
@@ -44,6 +48,23 @@
         <q-card-actions align="right">
           <q-btn flat label="Anuluj" color="primary" v-close-popup @click="clubItem=null"/>
           <q-btn flat label="Zmień" color="primary" v-close-popup  @click="updateClub()" />
+        </q-card-actions>
+      </q-card>
+</q-dialog>
+<q-dialog v-model="newCLub" @keypress.esc="newCLub=false">
+      <q-card class="full-width">
+        <q-card-section class="col full-width">
+          <div class="row">
+          <div class="col">
+            <div><q-input class="full-width" v-model="name" dense filled color="primary" stack-label label="Nazwa"></q-input></div>
+            <div><q-input class="full-width" v-model="city" dense filled color="primary" stack-label label="Miasto"></q-input></div>
+          </div>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Anuluj" color="primary" v-close-popup />
+          <q-btn flat label="Dodaj" color="primary" v-close-popup @click="createClub()" />
         </q-card-actions>
       </q-card>
 </q-dialog>
@@ -92,6 +113,7 @@ export default defineComponent({
       name: "",
       city: "",
       clubItem: null,
+      newCLub: false,
       open: false,
       failure: false,
       success: false,
@@ -102,7 +124,7 @@ export default defineComponent({
   methods: {
     getAllClubs() {
       fetch("http://" + this.local + "/club/", {
-        method: "Get",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
@@ -114,12 +136,26 @@ export default defineComponent({
     },
     updateClub() {
       const data = {
-        uuid: this.uuid,
-        name: this.firstName,
-        city: this.secondName
+        name: this.name,
+        city: this.city
+      }
+      fetch("http://" + this.local + "/club/?uuid=" + this.uuid, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(() => {
+        this.getAllClubs()
+      });
+    },
+    createClub() {
+      const data = {
+        name: this.name,
+        city: this.city
       }
       fetch("http://" + this.local + "/club/", {
-        method: "PUT",
+        method: "POST",
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json",

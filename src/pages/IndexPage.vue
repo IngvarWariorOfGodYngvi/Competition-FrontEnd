@@ -3,10 +3,13 @@
     <ClubView class="col-6" style="width: 50%"></ClubView>
     <PlayerView class="col-6" style="width: 50%"></PlayerView>
     <div>
-      <q-item>
+      <!-- <q-item>
         <q-input filled v-model="file" class="full-width"></q-input>
-      </q-item>
-      <q-btn @click="sendFile(file), this.$refs.PlayerView.getAllPlayers()">wyślij</q-btn>
+      </q-item> -->
+      <q-uploader
+        style="width:100%;heigth:100%" method="POST" :url="('http://' + local + '/file/file')" field-name="file"
+      />
+      <!-- <q-btn @click="sendFile(file), this.$refs.PlayerView.getAllPlayers()">wyślij</q-btn> -->
     </div>
   </q-page>
 </template>
